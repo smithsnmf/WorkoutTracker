@@ -12,7 +12,7 @@ import com.sean.workouttracker.model.ScheduleMode
 import com.sean.workouttracker.model.WorkoutRepository
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
+import java.time.ZoneOffset
 
 @Composable
 fun ScheduleModeToggle() {
@@ -180,7 +180,7 @@ fun StartDateDialog(
     onDismiss: () -> Unit,
     onDateSelected: (LocalDate) -> Unit
 ) {
-    val millis = initialDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    val millis = initialDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = millis)
 
     DatePickerDialog(
@@ -190,7 +190,7 @@ fun StartDateDialog(
                 val millisVal = datePickerState.selectedDateMillis
                 if (millisVal != null) {
                     val selectedLocalDate = Instant.ofEpochMilli(millisVal)
-                        .atZone(ZoneId.systemDefault())
+                        .atZone(ZoneOffset.UTC)
                         .toLocalDate()
                     onDateSelected(selectedLocalDate)
                 }

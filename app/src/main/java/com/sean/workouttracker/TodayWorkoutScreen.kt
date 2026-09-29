@@ -286,8 +286,11 @@ fun ExerciseCard(exercise: Exercise, today: LocalDate, phase: Int) {
             }
 
             // Last Time
+            val isCardio = exercise.unit == ExerciseUnit.MINUTES
+            val secondaryUnitLabel = if (isCardio) "mi" else "lb"
+
             lastLog?.let {
-                val lastSummary = it.sets.joinToString(", ") { s -> "${s.value}${if (s.weight != null) " @ ${s.weight}" else ""}" }
+                val lastSummary = it.sets.joinToString(", ") { s -> "${s.value} $unitStr${if (s.weight != null) " @ ${s.weight}" else ""}" }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 4.dp)
@@ -331,11 +334,12 @@ fun ExerciseCard(exercise: Exercise, today: LocalDate, phase: Int) {
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
-                if (exercise.baseRecommendedWeight != null || weightInput.isNotEmpty()) {
+                if (isCardio || exercise.baseRecommendedWeight != null || weightInput.isNotEmpty()) {
                     OutlinedTextField(
                         value = weightInput,
                         onValueChange = { weightInput = it },
-                        label = { Text("lb") },
+                        label = { Text(secondaryUnitLabel) },
+                        placeholder = { if (isCardio) Text("e.g. 3.1") else Text("") },
                         modifier = Modifier.weight(0.8f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
@@ -345,7 +349,7 @@ fun ExerciseCard(exercise: Exercise, today: LocalDate, phase: Int) {
                     onClick = {
                         val value = valueInput.toIntOrNull() ?: 0
                         if (value > 0) {
-                            val weightToSave = if (weightInput.isNotEmpty()) "$weightInput lb" else null
+                            val weightToSave = if (weightInput.isNotEmpty()) "$weightInput $secondaryUnitLabel" else null
                             WorkoutRepository.addSet(
                                 exercise.id,
                                 today,
